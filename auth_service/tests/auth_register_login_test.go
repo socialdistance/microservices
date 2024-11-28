@@ -1,12 +1,13 @@
 package tests
 
 import (
+	"lib_isod_v2/auth_service/tests/suite"
+	ssov1 "lib_isod_v2/protoss/gen/go/auth_service"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ssov1 "grpc_auth_tutorial/protoss/gen/go/sso"
-	"grpc_auth_tutorial/sso/tests/suite"
 
 	"testing"
 )

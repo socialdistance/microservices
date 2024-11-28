@@ -1,0 +1,2 @@
+CREATE DATABASE lib_isod;
+GRANT ALL PRIVILEGES ON DATABASE lib_isod to postgres;

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"lib_isod_v2/auth_service/internal/app"
-	"lib_isod_v2/auth_service/internal/config"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"lib_isod_v2/file_service/internal/app"
+	"lib_isod_v2/file_service/internal/config"
 )
 
 const (
@@ -20,10 +21,19 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	application := app.New(log, cfg.GRPC.Port, cfg.DSN, cfg.TokenTTL)
+	application := app.New(log, cfg.GRPC.Port, cfg.DSN, cfg.HTTP.Host, cfg.HTTP.Port, cfg.TokenTTL, cfg.WatcherCreate, cfg.WatcherRecovery)
 
 	go func() {
 		application.GRPCServer.MustRun()
+	}()
+
+	go func() {
+		application.HTTPServer.BuildRouters()
+		application.HTTPServer.MustRun()
+	}()
+
+	go func() {
+		application.FileService.FileRun()
 	}()
 
 	// Graceful shutdown
@@ -31,8 +41,11 @@ func main() {
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
 	<-stop
-
 	application.GRPCServer.Stop()
+	application.HTTPServer.Stop()
+	application.FileService.Stop()
+	application.Watcher.Close()
+
 	log.Info("Gracefully stopped")
 	log.Info("application stop")
 }

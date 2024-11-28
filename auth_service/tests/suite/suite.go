@@ -2,13 +2,14 @@ package suite
 
 import (
 	"context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	ssov1 "grpc_auth_tutorial/protoss/gen/go/sso"
-	"grpc_auth_tutorial/sso/internal/config"
+	"lib_isod_v2/auth_service/internal/config"
+	ssov1 "lib_isod_v2/protoss/gen/go/auth_service"
 	"net"
 	"strconv"
 	"testing"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (

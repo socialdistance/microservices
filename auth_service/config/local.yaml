@@ -1,5 +1,5 @@
 env: "local" # dev, prod
-storage_path: "./sso/storage/sso.db"
+storage_path: "./auth_service/storage/auth_service.db"
 DSN: ""
 #token_ttl: 1h
 grpc:

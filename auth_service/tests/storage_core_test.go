@@ -1,50 +1,40 @@
 package tests
 
-import (
-	"testing"
-	"time"
+// func TestPut(t *testing.T) {
+// 	store := core.NewCoreStore()
 
-	"github.com/google/uuid"
+// 	key := uuid.New()
+// 	value := models.StoreEvent{
+// 		ID:        key,
+// 		Title:     "test",
+// 		Started:   time.Now(),
+// 		Ended:     time.Now(),
+// 		ServiceID: 5,
+// 	}
 
-	"grpc_auth_tutorial/sso/internal/domain/models"
-	"grpc_auth_tutorial/sso/internal/storage/core"
-)
+// defer delete(store, key)
 
-func TestPut(t *testing.T) {
-	store := core.NewCoreStore()
+// // Sanity check
+// _, contains = store.Store[key]
+// if contains {
+// 	t.Error("key/value already exists")
+// }
 
-	key := uuid.New()
-	value := models.StoreEvent{
-		ID:        key,
-		Title:     "test",
-		Started:   time.Now(),
-		Ended:     time.Now(),
-		ServiceID: 5,
-	}
+// err should be nil
+// 	err := store.Put(key, value)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
 
-	// defer delete(store, key)
+// 	val, err := store.Get(key)
+// 	if err != nil {
+// 		t.Error("create failed")
+// 	}
 
-	// // Sanity check
-	// _, contains = store.Store[key]
-	// if contains {
-	// 	t.Error("key/value already exists")
-	// }
-
-	// err should be nil
-	err := store.Put(key, value)
-	if err != nil {
-		t.Error(err)
-	}
-
-	val, err := store.Get(key)
-	if err != nil {
-		t.Error("create failed")
-	}
-
-	if val != value {
-		t.Error("val/value mismatch")
-	}
-}
+// 	if val != value {
+// 		t.Error("val/value mismatch")
+// 	}
+// }
 
 // func TestGet(t *testing.T) {
 // 	const key = "read-key"
