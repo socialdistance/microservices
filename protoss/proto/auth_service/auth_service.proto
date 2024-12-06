@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package auth_service;
 
 option go_package = "option.auth_service.v1;auth_service";
@@ -8,6 +10,7 @@ service Auth {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc isAdmin(isAdminRequest) returns (isAdminResponse);
+  rpc StreamToken(google.protobuf.Empty) returns (TokenResponse);
 }
 
 message RegisterRequest {
@@ -35,4 +38,8 @@ message isAdminRequest {
 
 message isAdminResponse {
   bool is_admin = 1; // Indicates whether the user an admin
+}
+
+message TokenResponse {
+  string token = 1; // Token for file_service
 }
