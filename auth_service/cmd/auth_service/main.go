@@ -20,7 +20,12 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	application := app.New(log, cfg.HTTP.Host, cfg.HTTP.Port, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	go func() {
+		application.HTTPServer.BuildRouters()
+		application.HTTPServer.MustRun()
+	}()
 
 	go func() {
 		application.GRPCServer.MustRun()
@@ -33,6 +38,7 @@ func main() {
 	<-stop
 
 	application.GRPCServer.Stop()
+	application.HTTPServer.Stop()
 	log.Info("Gracefully stopped")
 	log.Info("application stop")
 }

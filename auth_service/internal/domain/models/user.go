@@ -5,8 +5,3 @@ type User struct {
 	Email    string
 	PassHash []byte
 }
-
-type UserStream struct {
-	Email string
-	Token string
-}

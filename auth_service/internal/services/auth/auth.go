@@ -12,7 +12,6 @@ import (
 	"lib_isod_v2/auth_service/internal/storage"
 
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
@@ -28,16 +27,15 @@ type Auth struct {
 	usrProvider UserProvider
 	appProvider AppProvider
 	tokenTTL    time.Duration
-	userStream  models.UserStream
 }
 
 // // isAdmin implements auth.Auth.
-// func (a *Auth) isAdmin(ctx context.Context, userID int64) (bool, error) {
-// 	panic("unimplemented")
-// }
 //
-type UserSaver interface { 
-  SaveUser(ctx context.Context, email string, passHash []byte) (uid int64, err error)
+//	func (a *Auth) isAdmin(ctx context.Context, userID int64) (bool, error) {
+//		panic("unimplemented")
+//	}
+type UserSaver interface {
+	SaveUser(ctx context.Context, email string, passHash []byte) (uid int64, err error)
 }
 
 type UserProvider interface {
@@ -54,7 +52,6 @@ func New(log *slog.Logger,
 	userProvider UserProvider,
 	appProvider AppProvider,
 	tokenTTL time.Duration) *Auth {
-	m := new(models.UserStream)
 
 	return &Auth{
 		log:         log,
@@ -62,7 +59,6 @@ func New(log *slog.Logger,
 		usrProvider: userProvider,
 		appProvider: appProvider,
 		tokenTTL:    tokenTTL,
-		userStream:  *m,
 	}
 }
 
@@ -107,9 +103,6 @@ func (a *Auth) Login(ctx context.Context, email, password string, appID int) (st
 
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
-
-	a.userStream.Email = email
-	a.userStream.Token = token
 
 	return token, nil
 }
@@ -173,13 +166,4 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	log.Info("checked if user is admin", slog.Bool("is_admin", isAdmin))
 
 	return isAdmin, nil
-}
-
-// StreamToken implements auth.Auth.
-func (a *Auth) StreamToken(ctx context.Context, empty *emptypb.Empty) (token string, err error) {
-	const op = "auth.StreamToken"
-
-	fmt.Println(a.userStream)
-
-	return "", nil
 }

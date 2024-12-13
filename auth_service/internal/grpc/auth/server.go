@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const emptyValue = 0
@@ -18,7 +17,6 @@ type Auth interface {
 	Login(ctx context.Context, email, password string, appID int) (token string, err error)
 	RegisterNewUser(ctx context.Context, email, password string) (userID int64, err error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
-	StreamToken(ctx context.Context, empty *emptypb.Empty) (token string, err error)
 }
 
 type serverAPI struct {
@@ -121,14 +119,5 @@ func (s *serverAPI) IsAdmin(ctx context.Context, req *ssov1.IsAdminRequest) (*ss
 
 	return &ssov1.IsAdminResponse{
 		IsAdmin: isAdmin,
-	}, nil
-}
-
-// Тут нужно будет стримить
-func (s *serverAPI) StreamToken(ctx context.Context, empty *emptypb.Empty) (*ssov1.TokenResponse, error) {
-	s.auth.StreamToken(ctx, empty)
-
-	return &ssov1.TokenResponse{
-		Token: "",
 	}, nil
 }

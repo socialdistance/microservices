@@ -14,11 +14,17 @@ type Config struct {
 	DSN         string        `yaml:"dsn" env-default:""`
 	TokenTTL    time.Duration `yaml:"token_ttl" env-default:"1h"`
 	GRPC        GRPCConfig    `yaml:"grpc"`
+	HTTP        HTTPConfig    `yaml:"http"`
 }
 
 type GRPCConfig struct {
 	Port    int           `yaml:"port"`
 	Timeout time.Duration `yaml:"timeout"`
+}
+
+type HTTPConfig struct {
+	Host string `yaml:"host"`
+	Port string `yaml:"port" env-default:"8081"`
 }
 
 func MustLoad() *Config {

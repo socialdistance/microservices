@@ -5,3 +5,6 @@ DSN: ""
 grpc:
   port: 44044
   timeout: 10h
+http:
+  host: "127.0.0.1"
+  port: "8081"
