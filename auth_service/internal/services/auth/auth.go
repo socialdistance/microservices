@@ -29,18 +29,13 @@ type Auth struct {
 	tokenTTL    time.Duration
 }
 
-// // isAdmin implements auth.Auth.
-//
-//	func (a *Auth) isAdmin(ctx context.Context, userID int64) (bool, error) {
-//		panic("unimplemented")
-//	}
 type UserSaver interface {
 	SaveUser(ctx context.Context, email string, passHash []byte) (uid int64, err error)
 }
 
 type UserProvider interface {
 	User(ctx context.Context, email string) (models.User, error)
-	IsAdminStorage(ctx context.Context, userID int64) (bool, error)
+	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
 type AppProvider interface {
@@ -152,7 +147,7 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 
 	log.Info("check if user is admin")
 
-	isAdmin, err := a.usrProvider.IsAdminStorage(ctx, userID)
+	isAdmin, err := a.usrProvider.IsAdmin(ctx, userID)
 	if err != nil {
 		if errors.Is(err, storage.ErrAppNotFound) {
 			log.Warn("user not found", slog.Any("error", err.Error()))

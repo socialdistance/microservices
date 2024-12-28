@@ -13,3 +13,11 @@ CREATE TABLE IF NOT EXISTS apps
     name   TEXT NOT NULL UNIQUE,
     secret TEXT NOT NULL UNIQUE
 );
+
+CREATE TABLE IF NOT EXIST permissions
+(
+  user_id INTEGER PRIMARY KEY,
+  permission TEXT NOT NULL,
+  app_id INTEGER NOT NULL
+);
+

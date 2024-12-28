@@ -9,6 +9,7 @@ import (
 
 	httprouters "lib_isod_v2/file_service/internal/http/file_service"
 
+	echojwt "github.com/labstack/echo-jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -27,6 +28,9 @@ func New(log *slog.Logger, host, port string, routers *httprouters.Routers) *Ser
 
 	e.Use(middleware.CORS())
 	e.Use(middleware.Recover())
+	e.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey: []byte("test-secret"),
+	}))
 
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogURI:      true,

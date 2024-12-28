@@ -96,4 +96,5 @@ func (s *Server) BuildRouters() {
 	api := s.e.Group("/api/auth")
 
 	api.POST("/login", s.routers.Login)
+	api.POST("/register", s.routers.Register)
 }

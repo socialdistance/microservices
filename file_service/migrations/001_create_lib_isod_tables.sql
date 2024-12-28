@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS "public"."creates" (
     "file_uuid" uuid,
     PRIMARY KEY ("id")
 );
+-- CREATE INDEX IF NOT EXISTS idx_last_name ON creates(LOWER(last_name));
 CREATE INDEX IF NOT EXISTS idx_last_name ON creates(last_name);
 
 CREATE TABLE IF NOT EXISTS "public"."recoverys" (
@@ -29,6 +30,7 @@ CREATE TABLE IF NOT EXISTS "public"."recoverys" (
     "file_uuid" uuid,
     PRIMARY KEY ("id")
 );
+-- CREATE INDEX IF NOT EXISTS idx_last_name ON recoverys(LOWER(last_name));
 CREATE INDEX IF NOT EXISTS idx_last_name ON recoverys(last_name);
 
 CREATE TABLE IF NOT EXISTS "public"."files" (

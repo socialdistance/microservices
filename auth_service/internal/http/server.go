@@ -43,5 +43,24 @@ func (r *Routers) Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, HTTPError{"Error login user" + err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, token)
+	return c.JSON(http.StatusOK, map[string]string{"token": token})
+}
+
+func (r *Routers) Register(c echo.Context) error {
+	const op = "auth_service.http.Register"
+
+	dto := new(RegisterDto)
+
+	if err := c.Bind(dto); err != nil {
+		r.log.Info("Error bind dto", op, err)
+		return c.JSON(http.StatusBadRequest, HTTPError{"bad request reginster auth_service" + err.Error()})
+	}
+
+	userID, err := r.auth.RegisterNewUser(c.Request().Context(), dto.Email, dto.Password)
+	if err != nil {
+		r.log.Info("Error register user", op, err)
+		return c.JSON(http.StatusBadRequest, HTTPError{"Error register user" + err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, map[string]int64{"userID": userID})
 }
