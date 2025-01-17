@@ -13,7 +13,9 @@ type Config struct {
 	DSN             string        `yaml:"dsn" env-required:"true"`
 	WatcherCreate   string        `yaml:"watcher_create" env-required:"true"`
 	WatcherRecovery string        `yaml:"watcher_recovery" env-required:"true"`
+	Token           string        `yaml:"token" env-required:"true"`
 	TokenTTL        time.Duration `yaml:"token_ttl" env-default:"1h"`
+	FilesPath       string        `yaml:"files_path"`
 	GRPC            GRPCConfig    `yaml:"grpc"`
 	HTTP            HTTPConfig    `yaml:"http"`
 }

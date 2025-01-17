@@ -21,7 +21,7 @@ type App struct {
 	FileService *file.File
 }
 
-func New(log *slog.Logger, grpcPort int, storagePath string, httpHost, httpPort string, tokenTTL time.Duration, createPath string, recoveryPath string) *App {
+func New(log *slog.Logger, grpcPort int, storagePath string, httpHost, httpPort string, token string, tokenTTL time.Duration, createPath string, recoveryPath string, filesPath string) *App {
 	storage, err := postgresql.New(context.Background(), storagePath)
 	if err != nil {
 		panic(err)
@@ -40,7 +40,7 @@ func New(log *slog.Logger, grpcPort int, storagePath string, httpHost, httpPort 
 	grpcApp := grpcapp.New(log /* authService,*/, grpcPort)
 
 	httpRouters := httprouters.NewRouter(log, storage)
-	httpApp := httpapp.New(log, httpHost, httpPort, httpRouters)
+	httpApp := httpapp.New(log, token, httpHost, httpPort, filesPath, httpRouters)
 
 	return &App{
 		GRPCServer:  grpcApp,

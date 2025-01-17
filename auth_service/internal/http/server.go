@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"lib_isod_v2/auth_service/internal/domain/models"
 	"log/slog"
 	"net/http"
 
@@ -12,6 +13,7 @@ type Auth interface {
 	Login(ctx context.Context, email, password string, appID int) (token string, err error)
 	RegisterNewUser(ctx context.Context, email, password string) (userID int64, err error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
+	ListApps(ctx context.Context) ([]models.App, error)
 }
 
 type Routers struct {
@@ -63,4 +65,16 @@ func (r *Routers) Register(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]int64{"userID": userID})
+}
+
+func (r *Routers) ListApps(c echo.Context) error {
+	const op = "auth_service.http.ListApps"
+
+	list, err := r.auth.ListApps(c.Request().Context())
+	if err != nil {
+		r.log.Info("Error list apps", op, err)
+		return c.JSON(http.StatusBadRequest, HTTPError{"Error list apps" + err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, list)
 }

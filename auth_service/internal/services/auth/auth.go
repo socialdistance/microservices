@@ -17,6 +17,7 @@ import (
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrInvalidAppID       = errors.New("invalid app id")
+	ErrAppsList           = errors.New("empty apps")
 	ErrUserExist          = errors.New("user already exist")
 	ErrUserNotFound       = errors.New("user not found")
 )
@@ -40,6 +41,7 @@ type UserProvider interface {
 
 type AppProvider interface {
 	App(ctx context.Context, appID int) (models.App, error)
+	ListApps(ctx context.Context) ([]models.App, error)
 }
 
 func New(log *slog.Logger,
@@ -149,7 +151,7 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 
 	isAdmin, err := a.usrProvider.IsAdmin(ctx, userID)
 	if err != nil {
-		if errors.Is(err, storage.ErrAppNotFound) {
+		if errors.Is(err, storage.ErrUserNotFound) {
 			log.Warn("user not found", slog.Any("error", err.Error()))
 
 			return false, fmt.Errorf("%s: %w", op, ErrInvalidAppID)
@@ -161,4 +163,28 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	log.Info("checked if user is admin", slog.Bool("is_admin", isAdmin))
 
 	return isAdmin, nil
+}
+
+func (a *Auth) ListApps(ctx context.Context) ([]models.App, error) {
+	const op = "auth.ListApps"
+
+	log := a.log.With(
+		slog.String("op", op))
+
+	log.Info("Require list apps")
+
+	list, err := a.appProvider.ListApps(ctx)
+	if err != nil {
+		if errors.Is(err, storage.ErrAppList) {
+			log.Warn("apps not found", slog.Any("error", err.Error()))
+
+			return []models.App{}, fmt.Errorf("%s: %w", op, ErrAppsList)
+		}
+
+		return []models.App{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("list apps")
+
+	return list, nil
 }

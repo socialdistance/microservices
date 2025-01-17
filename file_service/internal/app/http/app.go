@@ -9,28 +9,36 @@ import (
 
 	httprouters "lib_isod_v2/file_service/internal/http/file_service"
 
-	echojwt "github.com/labstack/echo-jwt"
+	"github.com/arl/statsviz"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 type Server struct {
-	log     *slog.Logger
-	e       *echo.Echo
-	routers *httprouters.Routers
-	host    string
-	port    string
+	m         *http.ServeMux
+	log       *slog.Logger
+	e         *echo.Echo
+	routers   *httprouters.Routers
+	host      string
+	port      string
+	filePaths string
 }
 
-func New(log *slog.Logger, host, port string, routers *httprouters.Routers) *Server {
+func New(log *slog.Logger, token string, host, port, filesPath string, routers *httprouters.Routers) *Server {
 	e := echo.New()
 	e.HideBanner = true
 
+	// e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	//     AllowOrigins: []string{"*"},
+	//     AllowMethods: []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
+	// }))
+
 	e.Use(middleware.CORS())
 	e.Use(middleware.Recover())
-	e.Use(echojwt.WithConfig(echojwt.Config{
-		SigningKey: []byte("test-secret"),
-	}))
+
+	// e.Use(echojwt.WithConfig(echojwt.Config{
+	// SigningKey: []byte(token),
+	// }))
 
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogURI:      true,
@@ -47,12 +55,20 @@ func New(log *slog.Logger, host, port string, routers *httprouters.Routers) *Ser
 		},
 	}))
 
+	mux := http.NewServeMux()
+	err := statsviz.Register(mux)
+	if err != nil {
+		log.Info("Statsviz start with error", slog.Any("error:", err.Error()))
+	}
+
 	return &Server{
-		log:     log,
-		e:       e,
-		routers: routers,
-		host:    host,
-		port:    port,
+		m:         mux,
+		log:       log,
+		e:         e,
+		routers:   routers,
+		host:      host,
+		port:      port,
+		filePaths: filesPath,
 	}
 }
 
@@ -93,6 +109,13 @@ func (s *Server) Stop() error {
 }
 
 func (s *Server) BuildRouters() {
+	fs := http.FileServer(http.Dir(s.filePaths))
+	s.e.GET("/uploads/*", echo.WrapHandler(http.StripPrefix("/uploads/", fs)))
+
+	debug := s.e.Group("/debug")
+	debug.GET("/statsviz/", echo.WrapHandler(s.m))
+	debug.GET("/statsviz/*", echo.WrapHandler(s.m))
+
 	api := s.e.Group("/api")
 
 	api.POST("/personscreate", s.routers.PersonsByCreateByAdmin)

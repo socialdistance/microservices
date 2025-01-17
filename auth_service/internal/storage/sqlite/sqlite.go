@@ -24,7 +24,9 @@ func New(storagePath string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{
+		db: db,
+	}, nil
 }
 
 func (s *Storage) Stop() error {
@@ -66,7 +68,6 @@ func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
 	if err != nil {
 		return models.User{}, fmt.Errorf("%s: %w", op, err)
 	}
-
 	row := stmt.QueryRowContext(ctx, email)
 
 	var user models.User
@@ -144,4 +145,29 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	}
 
 	return isAdmin, nil
+}
+
+func (s *Storage) ListApps(ctx context.Context) ([]models.App, error) {
+	const op = "storage.sqlite.ListApps"
+
+	rows, err := s.db.Query("SELECT id, name FROM apps")
+	if err != nil {
+		return []models.App{}, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	result := []models.App{}
+	for rows.Next() {
+		row := models.App{}
+		err := rows.Scan(&row.ID, &row.Name)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return []models.App{}, fmt.Errorf("%s: %w", op, storage.ErrAppList)
+			}
+		}
+
+		result = append(result, row)
+	}
+
+	return result, nil
 }

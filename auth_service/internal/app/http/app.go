@@ -9,11 +9,13 @@ import (
 
 	httprouters "lib_isod_v2/auth_service/internal/http"
 
+	"github.com/arl/statsviz"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 type Server struct {
+	m       *http.ServeMux
 	log     *slog.Logger
 	e       *echo.Echo
 	routers *httprouters.Routers
@@ -27,10 +29,6 @@ func New(log *slog.Logger, host, port string, routers *httprouters.Routers) *Ser
 
 	e.Use(middleware.CORS())
 	e.Use(middleware.Recover())
-
-	// e.Use(echojwt.WithConfig(echojwt.Config{
-	// 	SigningKey: []byte("test-secret"),
-	// }))
 
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogURI:      true,
@@ -47,7 +45,11 @@ func New(log *slog.Logger, host, port string, routers *httprouters.Routers) *Ser
 		},
 	}))
 
+	mux := http.NewServeMux()
+	statsviz.Register(mux)
+
 	return &Server{
+		m:       mux,
 		log:     log,
 		e:       e,
 		routers: routers,
@@ -93,8 +95,13 @@ func (s *Server) Stop() error {
 }
 
 func (s *Server) BuildRouters() {
+	debug := s.e.Group("/debug")
+	debug.GET("/statsviz/", echo.WrapHandler(s.m))
+	debug.GET("/statsviz/*", echo.WrapHandler(s.m))
+
 	api := s.e.Group("/api/auth")
 
 	api.POST("/login", s.routers.Login)
 	api.POST("/register", s.routers.Register)
+	api.GET("/apps", s.routers.ListApps)
 }

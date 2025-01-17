@@ -1,7 +1,6 @@
 package file
 
 import (
-	"fmt"
 	"lib_isod_v2/file_service/internal/domain/models"
 	"log/slog"
 )
@@ -74,7 +73,7 @@ func (f *File) FileRun() {
 					f.log.Error(op, slog.Any("error save person csv create", err.Error()))
 				}
 
-				fmt.Println("id", id)
+				f.log.Info("Save persons from .csv file by id in create", slog.Uint64("id:", id))
 			}
 
 			if fileCreate.Extension == "ods" {
@@ -88,8 +87,7 @@ func (f *File) FileRun() {
 					f.log.Error(op, slog.Any("error save person ods create", err.Error()))
 				}
 
-				fmt.Println("id", id)
-				// fmt.Printf("Person:%+v\n", personsCreatOds)
+				f.log.Info("Save persons from .ods file by id in create", slog.Uint64("id:", id))
 			}
 
 		case fileRecovery, ok := <-changesRecovery:
@@ -108,7 +106,7 @@ func (f *File) FileRun() {
 					f.log.Error(op, slog.Any("error save person csv recovery", err.Error()))
 				}
 
-				fmt.Println("id", id)
+				f.log.Info("Save persons from .csv file by id in recovery", slog.Uint64("id:", id))
 			}
 
 			if fileRecovery.Extension == "ods" {
@@ -122,7 +120,7 @@ func (f *File) FileRun() {
 					f.log.Error(op, slog.Any("error save person ods recovery", err.Error()))
 				}
 
-				fmt.Println("id", id)
+				f.log.Info("Save persons from .ods file by id in recovery", slog.Uint64("id:", id))
 			}
 		}
 	}

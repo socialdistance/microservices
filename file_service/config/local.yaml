@@ -2,7 +2,9 @@ env: "local" # dev, prod
 dsn: "postgres://postgres:postgres@localhost:54321/lib_isod"
 watcher_create: "create"
 watcher_recovery: "recovery"
-#token_ttl: 1h
+token: "top-secret"
+token_ttl: 1h
+files_path: "/home/user/work/microservices/tmp/" 
 grpc:
   port: 44045
   timeout: 10h
