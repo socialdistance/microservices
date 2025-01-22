@@ -3,6 +3,7 @@ package http
 import (
 	"lib_isod_v2/file_service/internal/domain/models"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -18,15 +19,21 @@ type Storage interface {
 	UpdateRecordComplete(id uint64, tableName string, complete bool) error
 }
 
-type Routers struct {
-	log     *slog.Logger
-	storage Storage
+type Uploader interface {
+	SaveFile(typeFolder string, mediaFile multipart.FileHeader) error
 }
 
-func NewRouter(log *slog.Logger, storage Storage) *Routers {
+type Routers struct {
+	log      *slog.Logger
+	storage  Storage
+	uploader Uploader
+}
+
+func NewRouter(log *slog.Logger, storage Storage, uploader Uploader) *Routers {
 	return &Routers{
-		log:     log,
-		storage: storage,
+		log:      log,
+		storage:  storage,
+		uploader: uploader,
 	}
 }
 
@@ -122,4 +129,25 @@ func (r *Routers) UpdateField(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, HTTPSuccess{"ok"})
+}
+
+func (r *Routers) HandlerUpload(c echo.Context) error {
+	const op = "http.server.HandlerUpload"
+
+	fileSrc, err := c.FormFile("file")
+	if err != nil {
+		r.log.Info("error get file", op, err)
+		return c.JSON(http.StatusInternalServerError, MediaDto{StatusCode: http.StatusInternalServerError, Message: "Error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	folderType := c.FormValue("type")
+
+	err = r.uploader.SaveFile(folderType, *fileSrc)
+	if err != nil {
+		r.log.Info("error save file", op, err)
+
+		return c.JSON(http.StatusInternalServerError, MediaDto{StatusCode: http.StatusInternalServerError, Message: "Error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	return c.JSON(http.StatusOK, MediaDto{StatusCode: http.StatusOK, Message: "success"})
 }

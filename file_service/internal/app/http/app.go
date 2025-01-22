@@ -123,4 +123,5 @@ func (s *Server) BuildRouters() {
 	api.POST("/searchcreate", s.routers.SearchByCreate)
 	api.POST("/searchrecovery", s.routers.SearchByRecovery)
 	api.PATCH("/update", s.routers.UpdateField)
+	api.POST("/upload", s.routers.HandlerUpload)
 }
